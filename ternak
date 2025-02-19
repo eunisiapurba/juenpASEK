@@ -1,0 +1,48 @@
+package org.example.coba;
+
+public class Ternak {
+    private String name;
+    private boolean status = false;
+    private double sizeTubuh;
+    private static int jumlahTernak = 3; // Sesuai jumlah ternak awal
+
+    // Konstruktor
+    public Ternak(String name) {
+        this.name = extractName(name);
+        this.sizeTubuh = extractSize(name);
+    }
+
+    // Metode untuk mengambil nama dari string input
+    private String extractName(String name) {
+        return name.replaceAll("[0-9]", "");
+    }
+
+    // Metode untuk mengambil ukuran dari string input
+    private double extractSize(String name) {
+        return Double.parseDouble(name.replaceAll("[^0-9]", ""));
+    }
+
+    public static void kurangiJumlahTernak() {
+        jumlahTernak--;
+    }
+
+    public static int getJumlahTernak() {
+        return jumlahTernak;
+    }
+
+    public boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(boolean status) {
+        this.status = status;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public double getSizeTubuh() {
+        return sizeTubuh;
+    }
+}
