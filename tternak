@@ -1,0 +1,40 @@
+package org.example.coba;
+
+public class Ternak {
+    private String nama;
+    private int ukuran;
+    private boolean hidup = true;
+    private static int jumlahTernak = 3; // Sesuai jumlah ternak awal
+
+    public Ternak(String deskripsi) {
+        String[] bagian = deskripsi.split("(?<=\\D)(?=\\d)"); // Memisahkan nama dan ukuran
+        this.nama = bagian[0];
+        this.ukuran = Integer.parseInt(bagian[1]);
+    }
+
+    public String getNama() {
+        return nama;
+    }
+
+    public int getUkuran() {
+        return ukuran;
+    }
+
+    public boolean isHidup() {
+        return hidup;
+    }
+
+    public void setHidup(boolean hidup) {
+        this.hidup = hidup;
+    }
+
+    public static int getJumlahTernak() {
+        return jumlahTernak;
+    }
+
+    public static void kurangiJumlahTernak() {
+        if (jumlahTernak > 0) {
+            jumlahTernak--;
+        }
+    }
+}
