@@ -1,0 +1,48 @@
+package org.example.coba;
+
+public class Ular {
+    private String name;
+    private double size;
+    private static int jumlahKill = 0;
+
+    // Konstruktor
+    public Ular(String name) {
+        this.name = extractName(name);
+        this.size = extractSize(name);
+    }
+
+    // Metode untuk mengambil nama dari string input
+    private String extractName(String name) {
+        return name.replaceAll("[0-9]", "");
+    }
+
+    // Metode untuk mengambil ukuran dari string input
+    private double extractSize(String name) {
+        return Double.parseDouble(name.replaceAll("[^0-9]", ""));
+    }
+
+    public void bunuh(Ternak ternak) {
+        if (!ternak.getStatus() && this.size >= ternak.getSizeTubuh() / 3) {
+            System.out.println(this.name + " berhasil makan " + ternak.getName());
+            ternak.setStatus(true);
+            jumlahKill++;
+            Ternak.kurangiJumlahTernak();
+        } else if (ternak.getStatus()) {
+            System.out.println(ternak.getName() + " tidak bisa dimakan karena sudah mati");
+        } else {
+            System.out.println("Gagal makan! size dari " + ternak.getName() + " terlalu besar");
+        }
+    }
+
+    public static int getJumlahKill() {
+        return jumlahKill;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public double getSize() {
+        return size;
+    }
+}
