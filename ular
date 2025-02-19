@@ -5,30 +5,21 @@ public class Ular {
     private double size;
     private static int jumlahKill = 0;
 
-    // Konstruktor
-    public Ular(String name) {
-        this.name = extractName(name);
-        this.size = extractSize(name);
-    }
-
-    // Metode untuk mengambil nama dari string input
-    private String extractName(String name) {
-        return name.replaceAll("[0-9]", "");
-    }
-
-    // Metode untuk mengambil ukuran dari string input
-    private double extractSize(String name) {
-        return Double.parseDouble(name.replaceAll("[^0-9]", ""));
+    public Ular(String input) {
+        this.name = input.replaceAll("\\d", "");
+        this.size = Double.parseDouble(input.replaceAll("\\D", ""));
     }
 
     public void bunuh(Ternak ternak) {
-        if (!ternak.getStatus() && this.size >= ternak.getSizeTubuh() / 3) {
-            System.out.println(this.name + " berhasil makan " + ternak.getName());
-            ternak.setStatus(true);
-            jumlahKill++;
-            Ternak.kurangiJumlahTernak();
-        } else if (ternak.getStatus()) {
+        if (!ternak.isStatus()) {
             System.out.println(ternak.getName() + " tidak bisa dimakan karena sudah mati");
+            return;
+        }
+        if (this.size >= ternak.getSizeTubuh() / 3) {
+            System.out.println(this.name + " berhasil makan " + ternak.getName());
+            ternak.setStatus(false);
+            jumlahKill++;
+            Ternak.setJumlahTernak(Ternak.getJumlahTernak() - 1);
         } else {
             System.out.println("Gagal makan! size dari " + ternak.getName() + " terlalu besar");
         }
@@ -36,13 +27,5 @@ public class Ular {
 
     public static int getJumlahKill() {
         return jumlahKill;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public double getSize() {
-        return size;
     }
 }
