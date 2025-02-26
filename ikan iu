@@ -1,0 +1,124 @@
+public class Person {
+    protected String name;
+    protected int age;
+    protected String gender;
+
+    public Person(String name, int age, String gender) {
+        this.name = name;
+        this.age = age;
+        this.gender = gender;
+    }
+
+    // Getter methods
+    public String getName() { return name; }
+    public int getAge() { return age; }
+    public String getGender() { return gender; }
+}
+
+import java.util.ArrayList;
+
+public class Bus extends Vehicle {
+    private String[] route;
+    private double fares;
+    private double profit;
+
+    public Bus(String name, Driver driver, String[] route, double fares) {
+        super(name, driver);
+        this.route = route;
+        this.fares = fares;
+        this.profit = 0;
+    }
+
+    public void dropPassengers(String destination, Passenger passenger) {
+        if (passengers.contains(passenger)) {
+            passengers.remove(passenger);
+            System.out.println(passenger.getName() + " telah turun di " + destination);
+        }
+    }
+
+    public void cancelOrder(Passenger passenger) {
+        if (passengers.contains(passenger)) {
+            passengers.remove(passenger);
+            System.out.println("Pesanan " + passenger.getName() + " dibatalkan.");
+        }
+    }
+
+    public void topUpBalance(double amount, Passenger passenger) {
+        passenger.addBalance(amount);
+        System.out.println(passenger.getName() + " telah melakukan top-up sebesar Rp " + amount);
+    }
+
+    public boolean checkPassengersBalance(Passenger passenger) {
+        return passenger.getBalance() >= fares;
+    }
+
+    public boolean takePassengers(Passenger passenger) {
+        if (usedCapacity < maxCapacity && checkPassengersBalance(passenger)) {
+            passengers.add(passenger);
+            passenger.reduceBalance(fares);
+            profit += fares;
+            usedCapacity++;
+            return true;
+        }
+        return false;
+    }
+
+    public double getProfit() {
+        return profit;
+    }
+}
+
+
+import java.util.ArrayList;
+
+public class Vehicle {
+    protected String name;
+    protected int maxCapacity;
+    protected Driver driver;
+    protected ArrayList<Passenger> passengers;
+    protected int usedCapacity;
+
+    public Vehicle(String name, Driver driver) {
+        this.name = name;
+        this.driver = driver;
+        this.maxCapacity = 20; // Misalnya kapasitas maksimum 20
+        this.passengers = new ArrayList<>();
+        this.usedCapacity = 0;
+    }
+}
+
+
+public class Passenger extends Person {
+    private String email;
+    private String destiny;
+    private double balance;
+
+    public Passenger(String name, String email, int age, String gender, double balance) {
+        super(name, age, gender);
+        this.email = email;
+        this.balance = balance;
+    }
+
+    public void addBalance(double amount) {
+        this.balance += amount;
+    }
+
+    public void reduceBalance(double amount) {
+        this.balance -= amount;
+    }
+
+    public double getBalance() {
+        return balance;
+    }
+}
+
+
+
+public class Driver extends Person {
+    private String licenseID;
+
+    public Driver(String name, String licenseID, int age, String gender) {
+        super(name, age, gender);
+        this.licenseID = licenseID;
+    }
+}
