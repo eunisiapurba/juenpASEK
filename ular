@@ -1,31 +1,47 @@
-package org.example.coba;
+import java.util.Scanner;
 
-public class Ular {
-    private String name;
-    private double size;
-    private static int jumlahKill = 0;
+public class Main {
+    private static final Scanner scanner = new Scanner(System.in);
 
-    public Ular(String input) {
-        this.name = input.replaceAll("\\d", "");
-        this.size = Double.parseDouble(input.replaceAll("\\D", ""));
+    public static void main(String[] args) {
+        Driver driver = new Driver("Budi", "D12345", 35, "Male");
+        String[] routes = {"Kampus UKDW", "Asrama Omah Babadan", "Asrama Teologi"};
+        Bus bus = new Bus("Duta Bus", driver, routes, 15000, 3);
+
+        Passenger passenger1 = new Passenger("Adit", "adit@mail.com", 21, "Male", 30000);
+        Passenger passenger2 = new Passenger("Surya", "surya@mail.com", 22, "Male", 5000);
+        Passenger passenger3 = new Passenger("Krismon", "krismon@mail.com", 23, "Male", 0);
+
+        processPassenger(bus, passenger1);
+        processPassenger(bus, passenger2);
+        processPassenger(bus, passenger3);
+
+        System.out.println("Keuntungan hari ini: Rp " + bus.getProfit());
     }
 
-    public void bunuh(Ternak ternak) {
-        if (!ternak.isStatus()) {
-            System.out.println(ternak.getName() + " tidak bisa dimakan karena sudah mati");
-            return;
+    public static void processPassenger(Bus bus, Passenger passenger) {
+        System.out.println("\nSelamat Datang Kak " + passenger.getName());
+        System.out.println("Pilihan rute perjalanan:");
+        String[] routes = bus.getRoute();
+        for (int i = 0; i < routes.length; i++) {
+            System.out.println((i + 1) + ". " + routes[i]);
         }
-        if (this.size >= ternak.getSizeTubuh() / 3) {
-            System.out.println(this.name + " berhasil makan " + ternak.getName());
-            ternak.setStatus(false);
-            jumlahKill++;
-            Ternak.setJumlahTernak(Ternak.getJumlahTernak() - 1);
-        } else {
-            System.out.println("Gagal makan! size dari " + ternak.getName() + " terlalu besar");
-        }
-    }
 
-    public static int getJumlahKill() {
-        return jumlahKill;
+        System.out.print("Masukkan destinasi perjalanan Anda: ");
+        String destination = scanner.nextLine();
+
+        if (!bus.proceedOrder(passenger, destination)) {
+            System.out.print("Anda ingin top up? (ya/tidak): ");
+            String choice = scanner.nextLine();
+
+            if (choice.equalsIgnoreCase("ya")) {
+                System.out.print("Masukkan nominal top up: ");
+                double amount = Double.parseDouble(scanner.nextLine());
+                bus.topUpBalance(passenger, amount);
+                bus.proceedOrder(passenger, destination);
+            } else {
+                System.out.println("Pesanan dibatalkan.");
+            }
+        }
     }
 }
