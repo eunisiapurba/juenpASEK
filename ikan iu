@@ -9,63 +9,52 @@ public class Person {
         this.gender = gender;
     }
 
-    // Getter methods
     public String getName() { return name; }
     public int getAge() { return age; }
     public String getGender() { return gender; }
 }
 
-import java.util.ArrayList;
+public class Passenger extends Person {
+    private String email;
+    private String destination;
+    private double balance;
 
-public class Bus extends Vehicle {
-    private String[] route;
-    private double fares;
-    private double profit;
-
-    public Bus(String name, Driver driver, String[] route, double fares) {
-        super(name, driver);
-        this.route = route;
-        this.fares = fares;
-        this.profit = 0;
+    public Passenger(String name, String email, int age, String gender, double balance) {
+        super(name, age, gender);
+        this.email = email;
+        this.balance = balance;
+        this.destination = "";
     }
 
-    public void dropPassengers(String destination, Passenger passenger) {
-        if (passengers.contains(passenger)) {
-            passengers.remove(passenger);
-            System.out.println(passenger.getName() + " telah turun di " + destination);
-        }
+    public void addBalance(double amount) {
+        this.balance += amount;
     }
 
-    public void cancelOrder(Passenger passenger) {
-        if (passengers.contains(passenger)) {
-            passengers.remove(passenger);
-            System.out.println("Pesanan " + passenger.getName() + " dibatalkan.");
-        }
-    }
-
-    public void topUpBalance(double amount, Passenger passenger) {
-        passenger.addBalance(amount);
-        System.out.println(passenger.getName() + " telah melakukan top-up sebesar Rp " + amount);
-    }
-
-    public boolean checkPassengersBalance(Passenger passenger) {
-        return passenger.getBalance() >= fares;
-    }
-
-    public boolean takePassengers(Passenger passenger) {
-        if (usedCapacity < maxCapacity && checkPassengersBalance(passenger)) {
-            passengers.add(passenger);
-            passenger.reduceBalance(fares);
-            profit += fares;
-            usedCapacity++;
+    public boolean deductBalance(double amount) {
+        if (this.balance >= amount) {
+            this.balance -= amount;
             return true;
         }
         return false;
     }
 
-    public double getProfit() {
-        return profit;
+    public double getBalance() { return balance; }
+
+    public String getDestination() { return destination; }
+
+    public void setDestination(String destination) { this.destination = destination; }
+}
+
+
+public class Driver extends Person {
+    private String licenseID;
+
+    public Driver(String name, String licenseID, int age, String gender) {
+        super(name, age, gender);
+        this.licenseID = licenseID;
     }
+
+    public String getLicenseID() { return licenseID; }
 }
 
 
@@ -78,47 +67,80 @@ public class Vehicle {
     protected ArrayList<Passenger> passengers;
     protected int usedCapacity;
 
-    public Vehicle(String name, Driver driver) {
+    public Vehicle(String name, Driver driver, int maxCapacity) {
         this.name = name;
         this.driver = driver;
-        this.maxCapacity = 20; // Misalnya kapasitas maksimum 20
+        this.maxCapacity = maxCapacity;
         this.passengers = new ArrayList<>();
         this.usedCapacity = 0;
     }
-}
 
-
-public class Passenger extends Person {
-    private String email;
-    private String destiny;
-    private double balance;
-
-    public Passenger(String name, String email, int age, String gender, double balance) {
-        super(name, age, gender);
-        this.email = email;
-        this.balance = balance;
+    public boolean isFull() {
+        return usedCapacity >= maxCapacity;
     }
 
-    public void addBalance(double amount) {
-        this.balance += amount;
+    public void addPassenger(Passenger passenger) {
+        passengers.add(passenger);
+        usedCapacity++;
     }
 
-    public void reduceBalance(double amount) {
-        this.balance -= amount;
+    public void removePassenger(Passenger passenger) {
+        passengers.remove(passenger);
+        usedCapacity--;
     }
 
-    public double getBalance() {
-        return balance;
+    public ArrayList<Passenger> getPassengers() {
+        return passengers;
     }
 }
 
+public class Bus extends Vehicle {
+    private String[] route;
+    private double fares;
+    private double profit;
 
-
-public class Driver extends Person {
-    private String licenseID;
-
-    public Driver(String name, String licenseID, int age, String gender) {
-        super(name, age, gender);
-        this.licenseID = licenseID;
+    public Bus(String name, Driver driver, String[] route, double fares, int maxCapacity) {
+        super(name, driver, maxCapacity);
+        this.route = route;
+        this.fares = fares;
+        this.profit = 0;
     }
+
+    public boolean proceedOrder(Passenger passenger, String destination) {
+        if (isFull()) {
+            System.out.println("Bus penuh, tidak bisa menambah penumpang.");
+            return false;
+        }
+        if (!passenger.deductBalance(fares)) {
+            System.out.println("Saldo tidak cukup. Silakan top-up.");
+            return false;
+        }
+        passenger.setDestination(destination);
+        addPassenger(passenger);
+        profit += fares;
+        System.out.println("Menambahkan penumpang atas nama " + passenger.getName());
+        return true;
+    }
+
+    public void topUpBalance(Passenger passenger, double amount) {
+        passenger.addBalance(amount);
+        System.out.println(passenger.getName() + " telah melakukan top-up sebesar Rp " + amount);
+    }
+
+    public void dropPassengers(String destination) {
+        passengers.removeIf(passenger -> {
+            if (passenger.getDestination().equals(destination)) {
+                System.out.println("Perjalanan telah sampai di tujuan, mohon " + passenger.getName() + " untuk turun.");
+                return true;
+            }
+            return false;
+        });
+    }
+
+    public double getProfit() { return profit; }
+
+    public String[] getRoute() { return route; }
 }
+
+
+
