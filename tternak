@@ -1,4 +1,11 @@
-[5/3 18.02] Rike Vaneo Noviansita: package org.example;
+package org.example;
+
+public interface Storage {
+    void insertMahasiswa(Mahasiswa mhs);
+    Mahasiswa getMahasiswa(String nim);
+    void updateMahasiswa(String nim, Mahasiswa mhs);
+    void deleteMahasiswa(String nim);
+}[5/3 18.02] Rike Vaneo Noviansita: package org.example;
 
 public class RegistorMahasiswa {
     private Storage storage;
