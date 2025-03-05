@@ -1,146 +1,183 @@
-public class Person {
-    protected String name;
-    protected int age;
-    protected String gender;
+package org.example;
 
-    public Person(String name, int age, String gender) {
-        this.name = name;
-        this.age = age;
-        this.gender = gender;
+public class Main {
+    public static void main(String[] args) {
+        Storage arr = new ArrayListStorage();
+        Storage hm = new HashMapStorage();
+
+        // testing arrayListStorage
+        testing(arr);
+        // testing hashMapStorage
+        testing(hm);
     }
 
-    public String getName() { return name; }
-    public int getAge() { return age; }
-    public String getGender() { return gender; }
+    public static void testing(Storage storage) {
+        Mahasiswa mhs = new Mahasiswa("Gian", "71210689", "Informatika");
+        Mahasiswa mhs2 = new Mahasiswa("Yandex", "71210683", "Informatika");
+        RegistorMahasiswa rm = new RegistorMahasiswa(storage);
+        System.out.println("=== TES INSERT dan DUPLIKASI ===");
+        rm.registerMahasiswaBaru(mhs);
+        rm.registerMahasiswaBaru(mhs2);
+        rm.registerMahasiswaBaru(mhs2);
+        System.out.println("");
+        rm.printInformasiMahasiswa(mhs.getNim());
+        System.out.println();
+        rm.printInformasiMahasiswa(mhs2.getNim());
+
+        System.out.println();
+        System.out.println("=== TES UPDATE ===");
+        rm.updateMahasiswa("71210683", "Yandi", "Informatika");
+        rm.updateMahasiswa("71210690", "Yandi", "Informatika");
+        System.out.println("");
+        rm.printInformasiMahasiswa(mhs.getNim());
+        System.out.println();
+        rm.printInformasiMahasiswa(mhs2.getNim());
+
+        System.out.println();
+        System.out.println("=== TES DELETE ===");
+        rm.deleteMahasiswa("71210683");
+        rm.printInformasiMahasiswa("71210683");
+    }
 }
+package org.example;
 
-public class Passenger extends Person {
-    private String email;
-    private String destination;
-    private double balance;
+public interface Storage {
+    void insertMahasiswa(Mahasiswa mhs);
+    Mahasiswa getMahasiswa(String nim);
+    void updateMahasiswa(String nim, Mahasiswa mhs);
+    void deleteMahasiswa(String nim);
+}
+package org.example;
 
-    public Passenger(String name, String email, int age, String gender, double balance) {
-        super(name, age, gender);
-        this.email = email;
-        this.balance = balance;
-        this.destination = "";
+public class RegistorMahasiswa {
+    private Storage storage;
+
+    public RegistorMahasiswa(Storage storage) {
+        this.storage = storage;
     }
 
-    public void addBalance(double amount) {
-        this.balance += amount;
+    public void registerMahasiswaBaru(Mahasiswa newMhs) {
+        storage.insertMahasiswa(newMhs);
     }
 
-    public boolean deductBalance(double amount) {
-        if (this.balance >= amount) {
-            this.balance -= amount;
-            return true;
+    public void printInformasiMahasiswa(String nim) {
+        Mahasiswa mhs = storage.getMahasiswa(nim);
+        if (mhs != null) {
+            System.out.println("NIM\t: " + mhs.getNim());
+            System.out.println("Nama\t: " + mhs.getNama());
+            System.out.println("Prodi\t: " + mhs.getProdi());
+        } else {
+            System.out.println("Mahasiswa dengan NIM " + nim + " tidak ditemukan");
         }
-        return false;
     }
 
-    public double getBalance() { return balance; }
-
-    public String getDestination() { return destination; }
-
-    public void setDestination(String destination) { this.destination = destination; }
-}
-
-
-public class Driver extends Person {
-    private String licenseID;
-
-    public Driver(String name, String licenseID, int age, String gender) {
-        super(name, age, gender);
-        this.licenseID = licenseID;
+    public void updateMahasiswa(String nim, String name, String prodi) {
+        Mahasiswa mhs = storage.getMahasiswa(nim);
+        if (mhs != null) {
+            mhs.setNama(name);
+            mhs.setProdi(prodi);
+            storage.updateMahasiswa(nim, mhs);
+        } else {
+            System.out.println("Mahasiswa dengan NIM " + nim + " tidak ditemukan");
+        }
     }
 
-    public String getLicenseID() { return licenseID; }
+    public void deleteMahasiswa(String nim) {
+        storage.deleteMahasiswa(nim);
+    }
 }
+package org.example;
 
+import java.util.HashMap;
+
+public class HashMapStorage implements Storage { // Perbaikan: Nama class yang benar adalah HashMapStorage
+    private HashMap<String, Mahasiswa> container = new HashMap<>();
+
+    @Override
+    public void insertMahasiswa(Mahasiswa mhs) {
+        if (container.containsKey(mhs.getNim())) {
+            System.out.println("Gagal Insert! NIM " + mhs.getNim() + " sudah ada!");
+        } else {
+            container.put(mhs.getNim(), mhs);
+            System.out.println("Berhasil mendaftarkan mahasiswa: " + mhs.getNim() + " " + mhs.getNama());
+        }
+    }
+
+    @Override
+    public Mahasiswa getMahasiswa(String nim) {
+        return container.get(nim);
+    }
+
+    @Override
+    public void updateMahasiswa(String nim, Mahasiswa mhs) {
+        if (container.containsKey(nim)) {
+            container.put(nim, mhs);
+            System.out.println("Berhasil update Mahasiswa: " + mhs.getNim() + " " + mhs.getNama());
+        } else {
+            System.out.println("Mahasiswa dengan NIM " + nim + " tidak ditemukan");
+        }
+    }
+
+    @Override
+    public void deleteMahasiswa(String nim) {
+        if (container.containsKey(nim)) {
+            Mahasiswa deletedMhs = container.remove(nim);
+            System.out.println("Berhasil Hapus Mahasiswa: " + deletedMhs.getNim() + " " + deletedMhs.getNama());
+        } else {
+            System.out.println("Mahasiswa dengan NIM " + nim + " tidak ditemukan");
+        }
+    }
+}
+package org.example;
 
 import java.util.ArrayList;
 
-public class Vehicle {
-    protected String name;
-    protected int maxCapacity;
-    protected Driver driver;
-    protected ArrayList<Passenger> passengers;
-    protected int usedCapacity;
+public class ArrayListStorage implements Storage {
+    private ArrayList<Mahasiswa> container = new ArrayList<>();
 
-    public Vehicle(String name, Driver driver, int maxCapacity) {
-        this.name = name;
-        this.driver = driver;
-        this.maxCapacity = maxCapacity;
-        this.passengers = new ArrayList<>();
-        this.usedCapacity = 0;
-    }
-
-    public boolean isFull() {
-        return usedCapacity >= maxCapacity;
-    }
-
-    public void addPassenger(Passenger passenger) {
-        passengers.add(passenger);
-        usedCapacity++;
-    }
-
-    public void removePassenger(Passenger passenger) {
-        passengers.remove(passenger);
-        usedCapacity--;
-    }
-
-    public ArrayList<Passenger> getPassengers() {
-        return passengers;
-    }
-}
-
-public class Bus extends Vehicle {
-    private String[] route;
-    private double fares;
-    private double profit;
-
-    public Bus(String name, Driver driver, String[] route, double fares, int maxCapacity) {
-        super(name, driver, maxCapacity);
-        this.route = route;
-        this.fares = fares;
-        this.profit = 0;
-    }
-
-    public boolean proceedOrder(Passenger passenger, String destination) {
-        if (isFull()) {
-            System.out.println("Bus penuh, tidak bisa menambah penumpang.");
-            return false;
-        }
-        if (!passenger.deductBalance(fares)) {
-            System.out.println("Saldo tidak cukup. Silakan top-up.");
-            return false;
-        }
-        passenger.setDestination(destination);
-        addPassenger(passenger);
-        profit += fares;
-        System.out.println("Menambahkan penumpang atas nama " + passenger.getName());
-        return true;
-    }
-
-    public void topUpBalance(Passenger passenger, double amount) {
-        passenger.addBalance(amount);
-        System.out.println(passenger.getName() + " telah melakukan top-up sebesar Rp " + amount);
-    }
-
-    public void dropPassengers(String destination) {
-        passengers.removeIf(passenger -> {
-            if (passenger.getDestination().equals(destination)) {
-                System.out.println("Perjalanan telah sampai di tujuan, mohon " + passenger.getName() + " untuk turun.");
-                return true;
+    @Override
+    public void insertMahasiswa(Mahasiswa mhs) {
+        for (Mahasiswa existingMhs : container) {
+            if (existingMhs.getNim().equals(mhs.getNim())) {
+                System.out.println("Gagal Insert! NIM " + mhs.getNim() + " sudah ada!");
+                return;
             }
-            return false;
-        });
+        }
+        container.add(mhs);
+        System.out.println("Berhasil mendaftarkan mahasiswa: " + mhs.getNim() + " " + mhs.getNama());
     }
 
-    public double getProfit() { return profit; }
+    @Override
+    public Mahasiswa getMahasiswa(String nim) {
+        for (Mahasiswa mhs : container) {
+            if (mhs.getNim().equals(nim)) {
+                return mhs;
+            }
+        }
+        return null;
+    }
 
-    public String[] getRoute() { return route; }
+    @Override
+    public void updateMahasiswa(String nim, Mahasiswa mhs) {
+        for (int i = 0; i < container.size(); i++) {
+            if (container.get(i).getNim().equals(nim)) {
+                container.set(i, mhs);
+                System.out.println("Berhasil update Mahasiswa: " + mhs.getNim() + " " + mhs.getNama());
+                return;
+            }
+        }
+        System.out.println("Mahasiswa dengan NIM " + nim + " tidak ditemukan");
+    }
+
+    @Override
+    public void deleteMahasiswa(String nim) {
+        for (int i = 0; i < container.size(); i++) {
+            if (container.get(i).getNim().equals(nim)) {
+                Mahasiswa deletedMhs = container.remove(i);
+                System.out.println("Berhasil Hapus Mahasiswa: " + deletedMhs.getNim() + " " + deletedMhs.getNama());
+                return;
+            }
+        }
+        System.out.println("Mahasiswa dengan NIM " + nim + " tidak ditemukan");
+    }
 }
-
-
-
