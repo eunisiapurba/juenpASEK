@@ -1,41 +1,53 @@
 package org.example;
 
-public class Main {
-    public static void main(String[] args) {
-        Storage arr = new ArrayListStorage();
-        Storage hm = new HashMapStorage();
+import java.util.ArrayList;
 
-        // testing arrayListStorage
-        testing(arr);
-        // testing hashMapStorage
-        testing(hm);
+public class ArrayListStorage implements Storage {
+    private ArrayList<Mahasiswa> container = new ArrayList<>();
+
+    @Override
+    public void insertMahasiswa(Mahasiswa mhs) {
+        for (Mahasiswa existingMhs : container) {
+            if (existingMhs.getNim().equals(mhs.getNim())) {
+                System.out.println("Gagal Insert! NIM " + mhs.getNim() + " sudah ada!");
+                return;
+            }
+        }
+        container.add(mhs);
+        System.out.println("Berhasil mendaftarkan mahasiswa: " + mhs.getNim() + " " + mhs.getNama());
     }
 
-    public static void testing(Storage storage) {
-        Mahasiswa mhs = new Mahasiswa("Gian", "71210689", "Informatika");
-        Mahasiswa mhs2 = new Mahasiswa("Yandex", "71210683", "Informatika");
-        RegistorMahasiswa rm = new RegistorMahasiswa(storage);
-        System.out.println("=== TES INSERT dan DUPLIKASI ===");
-        rm.registerMahasiswaBaru(mhs);
-        rm.registerMahasiswaBaru(mhs2);
-        rm.registerMahasiswaBaru(mhs2);
-        System.out.println("");
-        rm.printInformasiMahasiswa(mhs.getNim());
-        System.out.println();
-        rm.printInformasiMahasiswa(mhs2.getNim());
+    @Override
+    public Mahasiswa getMahasiswa(String nim) {
+        for (Mahasiswa mhs : container) {
+            if (mhs.getNim().equals(nim)) {
+                return mhs;
+            }
+        }
+        return null;
+    }
 
-        System.out.println();
-        System.out.println("=== TES UPDATE ===");
-        rm.updateMahasiswa("71210683", "Yandi", "Informatika");
-        rm.updateMahasiswa("71210690", "Yandi", "Informatika");
-        System.out.println("");
-        rm.printInformasiMahasiswa(mhs.getNim());
-        System.out.println();
-        rm.printInformasiMahasiswa(mhs2.getNim());
+    @Override
+    public void updateMahasiswa(String nim, Mahasiswa mhs) {
+        for (int i = 0; i < container.size(); i++) {
+            if (container.get(i).getNim().equals(nim)) {
+                container.set(i, mhs);
+                System.out.println("Berhasil update Mahasiswa: " + mhs.getNim() + " " + mhs.getNama());
+                return;
+            }
+        }
+        System.out.println("Mahasiswa dengan NIM " + nim + " tidak ditemukan");
+    }
 
-        System.out.println();
-        System.out.println("=== TES DELETE ===");
-        rm.deleteMahasiswa("71210683");
-        rm.printInformasiMahasiswa("71210683");
+    @Override
+    public void deleteMahasiswa(String nim) {
+        for (int i = 0; i < container.size(); i++) {
+            if (container.get(i).getNim().equals(nim)) {
+                Mahasiswa deletedMhs = container.remove(i);
+                System.out.println("Berhasil Hapus Mahasiswa: " + deletedMhs.getNim() + " " + deletedMhs.getNama());
+                return;
+            }
+        }
+        System.out.println("Mahasiswa dengan NIM " + nim + " tidak ditemukan");
     }
 }
