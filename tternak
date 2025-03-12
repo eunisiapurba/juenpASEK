@@ -1,28 +1,16 @@
-package org.ukdw.data;
+public class Main {
+    public static void main(String[] args) {
+        UserManager userManager = new UserManager();
 
-public class User {
-    // Private attributes
-    private String username;
-    private String email;
-    private String password;
+        // Menambahkan user
+        userManager.registerUser("U001", "Sari", "sari@example.com", "password123");
+        userManager.registerUser("U002", "Noval", "noval@example.com", "pass456");
 
-    // Constructor
-    public User(String username, String email, String password) {
-        this.username = username;
-        this.email = email;
-        this.password = password;
-    }
+        // Menampilkan semua user
+        userManager.displayUsers();
 
-    // Public getters
-    public String getUsername() {
-        return username;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getPassword() {
-        return password;
+        // Autentikasi user
+        userManager.authenticate("sari@example.com", "password123"); // Berhasil
+        userManager.authenticate("noval@example.com", "salahpass"); // Gagal
     }
 }
