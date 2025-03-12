@@ -1,95 +1,37 @@
-package org.example;
-
 import java.util.ArrayList;
+import java.util.List;
 
-public class ArrayListStorage implements Storage {
-    private ArrayList<Mahasiswa> container = new ArrayList<>();
+public class UserManager {
+    private List<User> users;
 
-    @Override
-    public void insertMahasiswa(Mahasiswa mhs) {
-        for (Mahasiswa existingMhs : container) {
-            if (existingMhs.getNim().equals(mhs.getNim())) {
-                System.out.println("Gagal Insert! NIM " + mhs.getNim() + " sudah ada!");
-                return;
+    // Konstruktor
+    public UserManager() {
+        this.users = new ArrayList<>();
+    }
+
+    // Menambahkan user
+    public void registerUser(String id, String nama, String email, String password) {
+        User newUser = new User(id, nama, email, password);
+        users.add(newUser);
+        System.out.println("User berhasil didaftarkan: " + newUser);
+    }
+
+    // Autentikasi user
+    public boolean authenticate(String email, String password) {
+        for (User user : users) {
+            if (user.getEmail().equals(email) && user.getPassword().equals(password)) {
+                System.out.println("Login berhasil! Selamat datang, " + user.getNama());
+                return true;
             }
         }
-        container.add(mhs);
-        System.out.println("Berhasil mendaftarkan mahasiswa: " + mhs.getNim() + " " + mhs.getNama());
+        System.out.println("Login gagal! Periksa kembali email dan password.");
+        return false;
     }
 
-    @Override
-    public Mahasiswa getMahasiswa(String nim) {
-        for (Mahasiswa mhs : container) {
-            if (mhs.getNim().equals(nim)) {
-                return mhs;
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public void updateMahasiswa(String nim, Mahasiswa mhs) {
-        for (int i = 0; i < container.size(); i++) {
-            if (container.get(i).getNim().equals(nim)) {
-                container.set(i, mhs);
-                System.out.println("Berhasil update Mahasiswa: " + mhs.getNim() + " " + mhs.getNama());
-                return;
-            }
-        }
-        System.out.println("Mahasiswa dengan NIM " + nim + " tidak ditemukan");
-    }
-
-    @Override
-    public void deleteMahasiswa(String nim) {
-        for (int i = 0; i < container.size(); i++) {
-            if (container.get(i).getNim().equals(nim)) {
-                Mahasiswa deletedMhs = container.remove(i);
-                System.out.println("Berhasil Hapus Mahasiswa: " + deletedMhs.getNim() + " " + deletedMhs.getNama());
-                return;
-            }
-        }
-        System.out.println("Mahasiswa dengan NIM " + nim + " tidak ditemukan");
-    }
-}
-package org.example;
-
-import java.util.HashMap;
-
-public class HashMapStorage implements Storage { // Perbaikan: Nama class yang benar adalah HashMapStorage
-    private HashMap<String, Mahasiswa> container = new HashMap<>();
-
-    @Override
-    public void insertMahasiswa(Mahasiswa mhs) {
-        if (container.containsKey(mhs.getNim())) {
-            System.out.println("Gagal Insert! NIM " + mhs.getNim() + " sudah ada!");
-        } else {
-            container.put(mhs.getNim(), mhs);
-            System.out.println("Berhasil mendaftarkan mahasiswa: " + mhs.getNim() + " " + mhs.getNama());
-        }
-    }
-
-    @Override
-    public Mahasiswa getMahasiswa(String nim) {
-        return container.get(nim);
-    }
-
-    @Override
-    public void updateMahasiswa(String nim, Mahasiswa mhs) {
-        if (container.containsKey(nim)) {
-            container.put(nim, mhs);
-            System.out.println("Berhasil update Mahasiswa: " + mhs.getNim() + " " + mhs.getNama());
-        } else {
-            System.out.println("Mahasiswa dengan NIM " + nim + " tidak ditemukan");
-        }
-    }
-
-    @Override
-    public void deleteMahasiswa(String nim) {
-        if (container.containsKey(nim)) {
-            Mahasiswa deletedMhs = container.remove(nim);
-            System.out.println("Berhasil Hapus Mahasiswa: " + deletedMhs.getNim() + " " + deletedMhs.getNama());
-        } else {
-            System.out.println("Mahasiswa dengan NIM " + nim + " tidak ditemukan");
+    // Menampilkan semua user
+    public void displayUsers() {
+        for (User user : users) {
+            System.out.println(user);
         }
     }
 }
