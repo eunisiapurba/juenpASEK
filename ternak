@@ -1,37 +1,50 @@
-import java.util.ArrayList;
-import java.util.List;
+<?xml version="1.0" encoding="UTF-8"?>
 
-public class UserManager {
-    private List<User> users;
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-    // Konstruktor
-    public UserManager() {
-        this.users = new ArrayList<>();
-    }
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="yourpackage.CalculatorController">
+    <top>
+        <TextField fx:id="display" editable="false" prefHeight="50" />
+    </top>
+    <center>
+        <GridPane hgap="5" vgap="5" padding="10">
+            <columnConstraints>
+                <ColumnConstraints percentWidth="25"/>
+                <ColumnConstraints percentWidth="25"/>
+                <ColumnConstraints percentWidth="25"/>
+                <ColumnConstraints percentWidth="25"/>
+            </columnConstraints>
 
-    // Menambahkan user
-    public void registerUser(String id, String nama, String email, String password) {
-        User newUser = new User(id, nama, email, password);
-        users.add(newUser);
-        System.out.println("User berhasil didaftarkan: " + newUser);
-    }
+            <!-- Row 1 -->
+            <Button text="1" onAction="#handleButton" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+            <Button text="2" onAction="#handleButton" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+            <Button text="3" onAction="#handleButton" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+            <Button text="+" onAction="#handleButton" GridPane.rowIndex="0" GridPane.columnIndex="3"/>
 
-    // Autentikasi user
-    public boolean authenticate(String email, String password) {
-        for (User user : users) {
-            if (user.getEmail().equals(email) && user.getPassword().equals(password)) {
-                System.out.println("Login berhasil! Selamat datang, " + user.getNama());
-                return true;
-            }
-        }
-        System.out.println("Login gagal! Periksa kembali email dan password.");
-        return false;
-    }
+            <!-- Row 2 -->
+            <Button text="4" onAction="#handleButton" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+            <Button text="5" onAction="#handleButton" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+            <Button text="6" onAction="#handleButton" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
+            <Button text="-" onAction="#handleButton" GridPane.rowIndex="1" GridPane.columnIndex="3"/>
 
-    // Menampilkan semua user
-    public void displayUsers() {
-        for (User user : users) {
-            System.out.println(user);
-        }
-    }
-}
+            <!-- Row 3 -->
+            <Button text="7" onAction="#handleButton" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+            <Button text="8" onAction="#handleButton" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+            <Button text="9" onAction="#handleButton" GridPane.rowIndex="2" GridPane.columnIndex="2"/>
+            <Button text="*" onAction="#handleButton" GridPane.rowIndex="2" GridPane.columnIndex="3"/>
+
+            <!-- Row 4 -->
+            <Button text="0" onAction="#handleButton" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+            <Button text="." onAction="#handleButton" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+            <Button text="=" onAction="#handleEquals" GridPane.rowIndex="3" GridPane.columnIndex="2"/>
+            <Button text="/" onAction="#handleButton" GridPane.rowIndex="3" GridPane.columnIndex="3"/>
+
+            <!-- Clear Button -->
+            <Button text="Clear" onAction="#handleClear" GridPane.rowIndex="0" GridPane.columnIndex="4"/>
+        </GridPane>
+    </center>
+</BorderPane>
