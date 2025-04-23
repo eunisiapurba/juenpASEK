@@ -1,56 +1,34 @@
-package org.ukdw.managers;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-public class UserManager {
-    private Connection connection;
-
-    // Constructor
-    public UserManager(Connection connection) {
-        this.connection = connection;
-    }
-
-    // Method to authenticate user
-    public boolean authenticateUser(String email, String password) {
-        String query = "SELECT * FROM users WHERE email = ? AND password = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setString(1, email);
-            stmt.setString(2, password);
-            ResultSet rs = stmt.executeQuery();
-            return rs.next(); // Returns true if a matching user is found
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    // Method to register a new user
-    public boolean registerUser(String username, String email, String password) {
-        String query = "INSERT INTO users (username, email, password) VALUES (?, ?, ?)";
-        try (PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setString(1, username);
-            stmt.setString(2, email);
-            stmt.setString(3, password);
-            return stmt.executeUpdate() > 0; // Returns true if insertion is successful
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    // Method to update user profile
-    public boolean updateProfile(String username, String email, String password) {
-        String query = "UPDATE users SET password = ?, username = ? WHERE email = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setString(1, password);
-            stmt.setString(2, username);
-            stmt.setString(3, email);
-            return stmt.executeUpdate() > 0; // Returns true if update is successful
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-}
+<?xml version="1.0" encoding="utf-8"?>
+<fmxfm>
+  <object class="TForm" Name="Form1" Caption="Kalkulator" Width="300" Height="350">
+    <object class="TEdit" Name="Display" Align="Top" Height="40" Text="" MarginLeft="10" MarginTop="10" MarginRight="10"/>
+    
+    <object class="TLayout" Align="Client" MarginLeft="10" MarginTop="10" MarginRight="10" MarginBottom="10">
+      <object class="TGridPanelLayout" ColumnCollection="col1;col2;col3;col4" RowCollection="row1;row2;row3;row4" Align="Client" Width="280" Height="240">
+        <!-- Baris 1 -->
+        <object class="TButton" Text="1" OnClick="ButtonClick"/>
+        <object class="TButton" Text="2" OnClick="ButtonClick"/>
+        <object class="TButton" Text="3" OnClick="ButtonClick"/>
+        <object class="TButton" Text="+" OnClick="ButtonClick"/>
+        
+        <!-- Baris 2 -->
+        <object class="TButton" Text="4" OnClick="ButtonClick"/>
+        <object class="TButton" Text="5" OnClick="ButtonClick"/>
+        <object class="TButton" Text="6" OnClick="ButtonClick"/>
+        <object class="TButton" Text="-" OnClick="ButtonClick"/>
+        
+        <!-- Baris 3 -->
+        <object class="TButton" Text="7" OnClick="ButtonClick"/>
+        <object class="TButton" Text="8" OnClick="ButtonClick"/>
+        <object class="TButton" Text="9" OnClick="ButtonClick"/>
+        <object class="TButton" Text="*" OnClick="ButtonClick"/>
+        
+        <!-- Baris 4 -->
+        <object class="TButton" Text="0" OnClick="ButtonClick"/>
+        <object class="TButton" Text="=" OnClick="EqualsClick"/>
+        <object class="TButton" Text="/" OnClick="ButtonClick"/>
+        <object class="TButton" Text="Clear" OnClick="ClearClick"/>
+      </object>
+    </object>
+  </object>
+</fmxfm>
