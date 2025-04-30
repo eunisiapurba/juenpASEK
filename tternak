@@ -1,49 +1,84 @@
 package org.example.week10;
 
-public class Catatan {
-    private int id;
-    private String judul;
-    private String konten;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.stage.Stage;
+import org.example.week10.User;
 
-    public Catatan(String judul, String konten) {
-        this.judul = judul;
-        this.konten = konten;
+import java.io.IOException;
+
+public class LoginController {
+
+    private static final String CORRECT_USERNAME = "admin";
+    private static final String CORRECT_PASSWORD = "admin";
+
+    @FXML
+    private TextField txtUsername;
+    @FXML
+    private PasswordField txtPassword;
+
+    @FXML
+    private void initialize() {
+        // You can add initialization logic here
     }
 
-    public Catatan(int id, String judul, String konten) {
-        this.id = id;
-        this.judul = judul;
-        this.konten = konten;
+    @FXML
+    private void onKeyPressEvent(KeyEvent event) {
+        if (event.getCode() == KeyCode.ENTER) {
+            try {
+                btnLoginClick();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
-    public int getId() {
-        return id;
+    @FXML
+    private void btnLoginClick() throws IOException {
+        String username = txtUsername.getText();
+        String password = txtPassword.getText();
+
+        if (isValidLogin(username, password)) {
+            User userLogin = new User(username, password, true);
+            showAlert(Alert.AlertType.INFORMATION, "Information", "Login success!!");
+            closeCurrentWindow();
+
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("daftar-catatan-view.fxml"));
+            Parent parent = fxmlLoader.load();
+            CatatanController controller = fxmlLoader.getController();
+            controller.setUserLogin(userLogin);
+
+            Stage newStage = new Stage();
+            newStage.setScene(new Scene(parent, 700, 550));
+            newStage.setTitle("Browse Data");
+            newStage.setResizable(false);
+            newStage.showAndWait();
+        } else {
+            showAlert(Alert.AlertType.ERROR, "Error", "Login failed!! Please check again.");
+            txtUsername.requestFocus();
+        }
     }
 
-    public void setId(int id) {
-        this.id = id;
+    private boolean isValidLogin(String username, String password) {
+        return username.equals(CORRECT_USERNAME) && password.equals(CORRECT_PASSWORD);
     }
 
-    public String getJudul() {
-        return judul;
+    private void showAlert(Alert.AlertType type, String title, String content) {
+        Alert alert = new Alert(type);
+        alert.setHeaderText(title);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 
-    public void setJudul(String judul) {
-        this.judul = judul;
-    }
-
-    public String getKonten() {
-        return konten;
-    }
-
-    public void setKonten(String konten) {
-        this.konten = konten;
-    }
-
-    public void setIsi(String text) {
-    }
-
-    public String getIsi() {
-        return null;
+    private void closeCurrentWindow() {
+        Stage stage = (Stage) txtUsername.getScene().getWindow();
+        stage.close();
     }
 }
