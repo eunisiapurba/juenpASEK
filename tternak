@@ -1,16 +1,49 @@
-public class Main {
-    public static void main(String[] args) {
-        UserManager userManager = new UserManager();
+package org.example.week10;
 
-        // Menambahkan user
-        userManager.registerUser("U001", "Sari", "sari@example.com", "password123");
-        userManager.registerUser("U002", "Noval", "noval@example.com", "pass456");
+public class Catatan {
+    private int id;
+    private String judul;
+    private String konten;
 
-        // Menampilkan semua user
-        userManager.displayUsers();
+    public Catatan(String judul, String konten) {
+        this.judul = judul;
+        this.konten = konten;
+    }
 
-        // Autentikasi user
-        userManager.authenticate("sari@example.com", "password123"); // Berhasil
-        userManager.authenticate("noval@example.com", "salahpass"); // Gagal
+    public Catatan(int id, String judul, String konten) {
+        this.id = id;
+        this.judul = judul;
+        this.konten = konten;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getJudul() {
+        return judul;
+    }
+
+    public void setJudul(String judul) {
+        this.judul = judul;
+    }
+
+    public String getKonten() {
+        return konten;
+    }
+
+    public void setKonten(String konten) {
+        this.konten = konten;
+    }
+
+    public void setIsi(String text) {
+    }
+
+    public String getIsi() {
+        return null;
     }
 }
