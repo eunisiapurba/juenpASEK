@@ -1,34 +1,248 @@
-<?xml version="1.0" encoding="utf-8"?>
-<fmxfm>
-  <object class="TForm" Name="Form1" Caption="Kalkulator" Width="300" Height="350">
-    <object class="TEdit" Name="Display" Align="Top" Height="40" Text="" MarginLeft="10" MarginTop="10" MarginRight="10"/>
-    
-    <object class="TLayout" Align="Client" MarginLeft="10" MarginTop="10" MarginRight="10" MarginBottom="10">
-      <object class="TGridPanelLayout" ColumnCollection="col1;col2;col3;col4" RowCollection="row1;row2;row3;row4" Align="Client" Width="280" Height="240">
-        <!-- Baris 1 -->
-        <object class="TButton" Text="1" OnClick="ButtonClick"/>
-        <object class="TButton" Text="2" OnClick="ButtonClick"/>
-        <object class="TButton" Text="3" OnClick="ButtonClick"/>
-        <object class="TButton" Text="+" OnClick="ButtonClick"/>
-        
-        <!-- Baris 2 -->
-        <object class="TButton" Text="4" OnClick="ButtonClick"/>
-        <object class="TButton" Text="5" OnClick="ButtonClick"/>
-        <object class="TButton" Text="6" OnClick="ButtonClick"/>
-        <object class="TButton" Text="-" OnClick="ButtonClick"/>
-        
-        <!-- Baris 3 -->
-        <object class="TButton" Text="7" OnClick="ButtonClick"/>
-        <object class="TButton" Text="8" OnClick="ButtonClick"/>
-        <object class="TButton" Text="9" OnClick="ButtonClick"/>
-        <object class="TButton" Text="*" OnClick="ButtonClick"/>
-        
-        <!-- Baris 4 -->
-        <object class="TButton" Text="0" OnClick="ButtonClick"/>
-        <object class="TButton" Text="=" OnClick="EqualsClick"/>
-        <object class="TButton" Text="/" OnClick="ButtonClick"/>
-        <object class="TButton" Text="Clear" OnClick="ClearClick"/>
-      </object>
-    </object>
-  </object>
-</fmxfm>
+[30/4 19.05] Juen: package org.example.week10;
+
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+
+import java.io.IOException;
+
+public class Apps extends Application {
+
+    @Override
+    public void start(Stage stage) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(Apps.class.getResource("login-view.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(), 320, 200);
+        stage.setTitle("Login");
+        stage.setResizable(false);
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    public static void main(String[] args) {
+        launch();
+    }
+}
+[30/4 19.05] Juen: package org.example.week10;
+
+import javafx.collections.FXCollections;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+
+import java.sql.*;
+import java.util.ArrayList;
+
+public class CatatanController {
+
+    @FXML
+    private TextField txtFldJudul;
+
+    @FXML
+    private TextArea txtAreaKonten;
+
+    @FXML
+    private Button btnSimpan;
+
+    @FXML
+    private Button btnHapus;
+
+    @FXML
+    private TableView<Catatan> table;
+
+    @FXML
+    private TableColumn<Catatan, Integer> id;
+
+    @FXML
+    private TableColumn<Catatan, String> judul;
+
+    private ArrayList<Catatan> arrayList = new ArrayList<>();
+    private int nextId = 1;
+
+    @FXML
+    public void initialize() {
+        id.setCellValueFactory(new PropertyValueFactory<>("id"));
+        judul.setCellValueFactory(new PropertyValueFactory<>("judul"));
+        table.setItems(FXCollections.observableArrayList(arrayList));
+
+        table.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (newSelection != null) {
+                txtFldJudul.setText(newSelection.getJudul());
+                txtAreaKonten.setText(newSelection.getKonten());
+            }
+        });
+
+    }
+
+ public void onBtnSimpanClick(ActionEvent event) {
+        String judul = txtFldJudul.getText();
+        String konten = txtAreaKonten.getText();
+
+        Catatan selected = table.getSelectionModel().getSelectedItem();
+
+        if (selected != null) {
+            // UPDATE: pengguna sedang mengedit catatan yang sudah ada
+            selected.setJudul(judul);
+            selected.setKonten(konten);
+
+            table.refresh(); // Refresh tampilan table karena data berubah
+            showMessageDialog("CATATAN DIPERBARUI");
+        } else {
+            // INSERT: pengguna menambahkan catatan baru
+            Catatan catatanBaru = new Catatan(nextId++, judul, konten);
+            arrayList.add(catatanBaru);
+            table.setItems(FXCollections.observableArrayList(arrayList));
+            showMessageDialog("CATATAN DITAMBAHKAN");
+        }
+
+        clearfields();
+        table.getSelectionModel().clearSelection(); // Reset pilihan
+    }
+
+    public void clearfields(){
+        txtFldJudul.clear();
+        txtAreaKonten.clear();
+    }
+
+
+    private void showMessageDialog(String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Informasi");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+
+
+    public void onBtnHapus(ActionEvent event) {
+        Catatan selected = table.getSelectionModel().getSelectedItem();
+        arrayList.remove(selected);
+        clearfields();
+        table.setItems(FXCollections.observableArrayList(arrayList));
+    }
+[30/4 19.05] Juen: package org.example.week10;
+
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.stage.Stage;
+import org.example.week10.User;
+
+import java.io.IOException;
+
+public class LoginController {
+
+    private static final String CORRECT_USERNAME = "admin";
+    private static final String CORRECT_PASSWORD = "admin";
+
+    @FXML
+    private TextField txtUsername;
+    @FXML
+    private PasswordField txtPassword;
+
+    @FXML
+    private void initialize() {
+        // You can add initialization logic here
+    }
+
+    @FXML
+    private void onKeyPressEvent(KeyEvent event) {
+        if (event.getCode() == KeyCode.ENTER) {
+            try {
+                btnLoginClick();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @FXML
+    private void btnLoginClick() throws IOException {
+        String username = txtUsername.getText();
+        String password = txtPassword.getText();
+
+        if (isValidLogin(username, password)) {
+            User userLogin = new User(username, password, true);
+            showAlert(Alert.AlertType.INFORMATION, "Information", "Login success!!");
+            closeCurrentWindow();
+
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("daftar-catatan-view.fxml"));
+            Parent parent = fxmlLoader.load();
+            CatatanController controller = fxmlLoader.getController();
+            controller.setUserLogin(userLogin);
+
+            Stage newStage = new Stage();
+            newStage.setScene(new Scene(parent, 700, 550));
+            newStage.setTitle("Browse Data");
+            newStage.setResizable(false);
+            newStage.showAndWait();
+        } else {
+            showAlert(Alert.AlertType.ERROR, "Error", "Login failed!! Please check again.");
+            txtUsername.requestFocus();
+        }
+    }
+
+    private boolean isValidLogin(String username, String password) {
+        return username.equals(CORRECT_USERNAME) && password.equals(CORRECT_PASSWORD);
+    }
+
+    private void showAlert(Alert.AlertType type, String title, String content) {
+        Alert alert = new Alert(type);
+        alert.setHeaderText(title);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
+
+    private void closeCurrentWindow() {
+        Stage stage = (Stage) txtUsername.getScene().getWindow();
+        stage.close();
+    }
+}
+[30/4 19.05] Juen: package org.example.week10;
+
+public class User {
+
+    private String username;
+    private String password;
+    private boolean loggedin = false;
+
+    public User(String username, String password, boolean loggedin) {
+        this.username = username;
+        this.password = password;
+        this.loggedin = loggedin;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public boolean isLoggedin() {
+        return loggedin;
+    }
+
+    public void setLoggedin(boolean loggedin) {
+        this.loggedin = loggedin;
+    }
+}
