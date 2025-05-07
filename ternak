@@ -1,63 +1,106 @@
-[30/4 19.19] Juen: <?xml version="1.0" encoding="UTF-8"?>
+package org.week11;
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.chart.PieChart;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 
-<VBox
-        xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1"
-        alignment="CENTER" spacing="20.0" fx:controller="org.example.week10.CatatanController" >
-    <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-    </padding>
-    <VBox>
-        <Label text="Judul:" />
-        <TextField fx:id="txtFldJudul" promptText="Judul" />
-        <Label text="Isi:">
-            <padding>
-                <Insets top="10.0" />
-            </padding></Label>
-        <TextArea fx:id="txtAreaKonten" promptText="Isi" />
-    </VBox>
-    <HBox alignment="CENTER_RIGHT" prefHeight="19.0" prefWidth="200.0">
-        <Button fx:id="btnSimpan" onAction="#onBtnSimpanClick" text="Simpan">
-            <HBox.margin>
-                <Insets right="10.0" />
-            </HBox.margin>
-        </Button>
-        <Button fx:id="btnHapus" text="Hapus" onAction="#onBtnHapus">
-            <HBox.margin>
-                <Insets right="10.0" />
-            </HBox.margin>
-        </Button>
-    </HBox>
-    <TableView fx:id="table" layoutY="163.2">
-        <columns>
-            <TableColumn fx:id="id" maxWidth="1.7976931348623157E308" prefWidth="50.0" resizable="false" text="ID" />
-            <TableColumn fx:id="judul" maxWidth="1.7976931348623157E308" prefWidth="400.0" resizable="false" text="Judul" />
-        </columns>
-    </TableView>
-</VBox>
-[30/4 19.19] Juen: <?xml version="1.0" encoding="UTF-8"?>
+import java.net.URL;
+import java.sql.*;
+import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Font?>
+public class DaftarCatatanController implements Initializable {
+    @FXML
+    private TextField txtFldJudul;
+    @FXML
+    private TextArea txtAreaKonten;
+    @FXML
+    private TextField txtSearch;
+    @FXML
+    private TableView<Catatan> table;
+    @FXML
+    private TableColumn<Catatan, String> id;
+    @FXML
+    private TableColumn<Catatan, String> judul;
+    @FXML
+    private TableColumn<Catatan, String> kategori;
+    @FXML
+    private ChoiceBox<String> cbKategori;
+    @FXML
+    private PieChart pieChart;
 
-<AnchorPane xmlns:fx="http://javafx.com/fxml"
-            fx:controller="org.example.week10.LoginController"
-            prefHeight="220.0" prefWidth="350.0">
-    <children>
-        <Label layoutX="90.0" layoutY="20.0" text="Welcome, Login Here">
-            <font>
-                <Font name="System Bold" size="18.0"/>
-            </font>
-        </Label>
-        <Label layoutX="30.0" layoutY="70.0" text="Username:"/>
-        <TextField fx:id="txtUsername" layoutX="110.0" layoutY="66.0" promptText="Username"/>
-        <Label layoutX="30.0" layoutY="110.0" text="Password:"/>
-        <PasswordField fx:id="txtPassword" layoutX="110.0" layoutY="106.0" promptText="Password"/>
-        <Button fx:id="btnLogin" layoutX="110.0" layoutY="150.0" text="Login" onAction="#btnLoginClick"/>
-        <Hyperlink fx:id="lblForgot" layoutX="190.0" layoutY="150.0" text="Forget Password"/>
-    </children>
-</AnchorPane>
+    private ObservableList<Catatan> catatanObservableList;
+    private FilteredList<Catatan> filteredList;
+    private final String DB_URL = "jdbc:sqlite:catatanku.db";
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        catatanObservableList = FXCollections.observableArrayList();
+        loadCatatanFromDB();
+
+        filteredList = new FilteredList<>(catatanObservableList, b -> true);
+
+        table.setItems(filteredList);
+        id.setCellValueFactory(new PropertyValueFactory<>("id"));
+        judul.setCellValueFactory(new PropertyValueFactory<>("judul"));
+        kategori.setCellValueFactory(new PropertyValueFactory<>("kategori"));
+
+        cbKategori.setItems(FXCollections.observableArrayList("Pribadi", "Pekerjaan", "Lainnya"));
+
+        txtSearch.textProperty().addListener((observable, oldValue, newValue) -> {
+            filteredList.setPredicate(catatan -> {
+                if (newValue == null || newValue.isEmpty()) return true;
+                String lowerCaseFilter = newValue.toLowerCase();
+                return catatan.getJudul().toLowerCase().contains(lowerCaseFilter)
+                        || catatan.getKategori().toLowerCase().contains(lowerCaseFilter)
+                        || catatan.getId().toLowerCase().contains(lowerCaseFilter);
+            });
+        });
+    }
+
+    private void loadCatatanFromDB() {
+        try (Connection connection = DriverManager.getConnection(DB_URL);
+             Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT * FROM catatan")) {
+
+            while (rs.next()) {
+                Catatan c = new Catatan(
+                        rs.getString("id"),
+                        rs.getString("judul"),
+                        rs.getString("kategori"),
+                        rs.getString("konten")
+                );
+                catatanObservableList.add(c);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void onTampilkanGrafikClick(ActionEvent event) {
+        Map<String, Long> countMap = catatanObservableList.stream()
+                .collect(Collectors.groupingBy(Catatan::getKategori, Collectors.counting()));
+
+        ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList();
+        countMap.forEach((kategori, count) -> pieChartData.add(new PieChart.Data(kategori, count)));
+
+        pieChart.setData(pieChartData);
+    }
+
+    @FXML
+    private void onKeluarClick(ActionEvent event) {
+        Platform.exit();
+    }
+}
