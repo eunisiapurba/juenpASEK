@@ -1,248 +1,39 @@
-[30/4 19.05] Juen: package org.example.week10;
+<?xml version="1.0" encoding="UTF-8"?><?import javafx.scene.control.*?><?import javafx.scene.layout.*?><?import javafx.scene.chart.*?><VBox spacing="10" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+fx:controller="org.week11.DaftarCatatanController" alignment="CENTER" padding="20">
 
-import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
+<HBox spacing="10">
+    <Label text="Judul:" />
+    <TextField fx:id="txtFldJudul" promptText="Masukkan judul catatan..."/>
+</HBox>
 
-import java.io.IOException;
+<HBox spacing="10">
+    <Label text="Konten:" />
+    <TextArea fx:id="txtAreaKonten" promptText="Tulis isi catatan..." prefRowCount="3"/>
+</HBox>
 
-public class Apps extends Application {
+<HBox spacing="10">
+    <Label text="Kategori:" />
+    <ChoiceBox fx:id="cbKategori" />
+</HBox>
 
-    @Override
-    public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(Apps.class.getResource("login-view.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 320, 200);
-        stage.setTitle("Login");
-        stage.setResizable(false);
-        stage.setScene(scene);
-        stage.show();
-    }
+<HBox spacing="10">
+    <Label text="Cari:" />
+    <TextField fx:id="txtSearch" promptText="Cari catatan..."/>
+</HBox>
 
-    public static void main(String[] args) {
-        launch();
-    }
-}
-[30/4 19.05] Juen: package org.example.week10;
+<TableView fx:id="table" prefHeight="200">
+    <columns>
+        <TableColumn fx:id="id" text="ID" prefWidth="50"/>
+        <TableColumn fx:id="judul" text="Judul" prefWidth="150"/>
+        <TableColumn fx:id="kategori" text="Kategori" prefWidth="100"/>
+    </columns>
+</TableView>
 
-import javafx.collections.FXCollections;
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
-import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
+<HBox spacing="10">
+    <Button text="Tampilkan Grafik" onAction="#onTampilkanGrafikClick"/>
+    <Button text="Keluar" onAction="#onKeluarClick"/>
+</HBox>
 
-import java.sql.*;
-import java.util.ArrayList;
+<PieChart fx:id="pieChart" prefHeight="200" />
 
-public class CatatanController {
-
-    @FXML
-    private TextField txtFldJudul;
-
-    @FXML
-    private TextArea txtAreaKonten;
-
-    @FXML
-    private Button btnSimpan;
-
-    @FXML
-    private Button btnHapus;
-
-    @FXML
-    private TableView<Catatan> table;
-
-    @FXML
-    private TableColumn<Catatan, Integer> id;
-
-    @FXML
-    private TableColumn<Catatan, String> judul;
-
-    private ArrayList<Catatan> arrayList = new ArrayList<>();
-    private int nextId = 1;
-
-    @FXML
-    public void initialize() {
-        id.setCellValueFactory(new PropertyValueFactory<>("id"));
-        judul.setCellValueFactory(new PropertyValueFactory<>("judul"));
-        table.setItems(FXCollections.observableArrayList(arrayList));
-
-        table.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-            if (newSelection != null) {
-                txtFldJudul.setText(newSelection.getJudul());
-                txtAreaKonten.setText(newSelection.getKonten());
-            }
-        });
-
-    }
-
- public void onBtnSimpanClick(ActionEvent event) {
-        String judul = txtFldJudul.getText();
-        String konten = txtAreaKonten.getText();
-
-        Catatan selected = table.getSelectionModel().getSelectedItem();
-
-        if (selected != null) {
-            // UPDATE: pengguna sedang mengedit catatan yang sudah ada
-            selected.setJudul(judul);
-            selected.setKonten(konten);
-
-            table.refresh(); // Refresh tampilan table karena data berubah
-            showMessageDialog("CATATAN DIPERBARUI");
-        } else {
-            // INSERT: pengguna menambahkan catatan baru
-            Catatan catatanBaru = new Catatan(nextId++, judul, konten);
-            arrayList.add(catatanBaru);
-            table.setItems(FXCollections.observableArrayList(arrayList));
-            showMessageDialog("CATATAN DITAMBAHKAN");
-        }
-
-        clearfields();
-        table.getSelectionModel().clearSelection(); // Reset pilihan
-    }
-
-    public void clearfields(){
-        txtFldJudul.clear();
-        txtAreaKonten.clear();
-    }
-
-
-    private void showMessageDialog(String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Informasi");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
-
-
-    public void onBtnHapus(ActionEvent event) {
-        Catatan selected = table.getSelectionModel().getSelectedItem();
-        arrayList.remove(selected);
-        clearfields();
-        table.setItems(FXCollections.observableArrayList(arrayList));
-    }
-[30/4 19.05] Juen: package org.example.week10;
-
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.stage.Stage;
-import org.example.week10.User;
-
-import java.io.IOException;
-
-public class LoginController {
-
-    private static final String CORRECT_USERNAME = "admin";
-    private static final String CORRECT_PASSWORD = "admin";
-
-    @FXML
-    private TextField txtUsername;
-    @FXML
-    private PasswordField txtPassword;
-
-    @FXML
-    private void initialize() {
-        // You can add initialization logic here
-    }
-
-    @FXML
-    private void onKeyPressEvent(KeyEvent event) {
-        if (event.getCode() == KeyCode.ENTER) {
-            try {
-                btnLoginClick();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    @FXML
-    private void btnLoginClick() throws IOException {
-        String username = txtUsername.getText();
-        String password = txtPassword.getText();
-
-        if (isValidLogin(username, password)) {
-            User userLogin = new User(username, password, true);
-            showAlert(Alert.AlertType.INFORMATION, "Information", "Login success!!");
-            closeCurrentWindow();
-
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("daftar-catatan-view.fxml"));
-            Parent parent = fxmlLoader.load();
-            CatatanController controller = fxmlLoader.getController();
-            controller.setUserLogin(userLogin);
-
-            Stage newStage = new Stage();
-            newStage.setScene(new Scene(parent, 700, 550));
-            newStage.setTitle("Browse Data");
-            newStage.setResizable(false);
-            newStage.showAndWait();
-        } else {
-            showAlert(Alert.AlertType.ERROR, "Error", "Login failed!! Please check again.");
-            txtUsername.requestFocus();
-        }
-    }
-
-    private boolean isValidLogin(String username, String password) {
-        return username.equals(CORRECT_USERNAME) && password.equals(CORRECT_PASSWORD);
-    }
-
-    private void showAlert(Alert.AlertType type, String title, String content) {
-        Alert alert = new Alert(type);
-        alert.setHeaderText(title);
-        alert.setContentText(content);
-        alert.showAndWait();
-    }
-
-    private void closeCurrentWindow() {
-        Stage stage = (Stage) txtUsername.getScene().getWindow();
-        stage.close();
-    }
-}
-[30/4 19.05] Juen: package org.example.week10;
-
-public class User {
-
-    private String username;
-    private String password;
-    private boolean loggedin = false;
-
-    public User(String username, String password, boolean loggedin) {
-        this.username = username;
-        this.password = password;
-        this.loggedin = loggedin;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public boolean isLoggedin() {
-        return loggedin;
-    }
-
-    public void setLoggedin(boolean loggedin) {
-        this.loggedin = loggedin;
-    }
-}
+</VBox>
