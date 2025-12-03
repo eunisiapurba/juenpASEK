@@ -1,23 +1,16 @@
 DELIMITER $$
 
-CREATE PROCEDURE getMemberTier(
-    IN p_id_anggota INT,
-    OUT p_tier VARCHAR(20)
+CREATE PROCEDURE calculateTotalLoanedBooksValue(
+    OUT totalValue INT
 )
 BEGIN
-    DECLARE v_total INT;
-
-    SELECT total_pinjaman INTO v_total
-    FROM anggota
-    WHERE id_anggota = p_id_anggota;
-
-    IF v_total < 5 THEN
-        SET p_tier = 'Bronze';
-    ELSEIF v_total BETWEEN 5 AND 10 THEN
-        SET p_tier = 'Silver';
-    ELSE
-        SET p_tier = 'Gold';
-    END IF;
+    SELECT 
+        SUM(b.tarif_denda_harian * d.jumlah)
+    INTO totalValue
+    FROM detail_pinjaman d
+    INNER JOIN buku b ON d.id_buku = b.id_buku
+    INNER JOIN peminjaman p ON d.id_peminjaman = p.id_peminjaman
+    WHERE p.tanggal_kembali IS NULL;
 END $$
 
 DELIMITER ;
