@@ -1,22 +1,22 @@
 DELIMITER $$
 
-CREATE PROCEDURE getBookAvailability(
-    IN p_id_buku INT,
-    OUT p_status VARCHAR(20)
+CREATE PROCEDURE getMemberTier(
+    IN p_id_anggota INT,
+    OUT p_tier VARCHAR(20)
 )
 BEGIN
-    DECLARE v_stok INT;
+    DECLARE v_total INT;
 
-    SELECT stok INTO v_stok
-    FROM buku
-    WHERE id_buku = p_id_buku;
+    SELECT total_pinjaman INTO v_total
+    FROM anggota
+    WHERE id_anggota = p_id_anggota;
 
-    IF v_stok = 0 THEN
-        SET p_status = 'Out of Stock';
-    ELSEIF v_stok BETWEEN 1 AND 5 THEN
-        SET p_status = 'Low Stock';
+    IF v_total < 5 THEN
+        SET p_tier = 'Bronze';
+    ELSEIF v_total BETWEEN 5 AND 10 THEN
+        SET p_tier = 'Silver';
     ELSE
-        SET p_status = 'Available';
+        SET p_tier = 'Gold';
     END IF;
 END $$
 
