@@ -1,1 +1,23 @@
-https://github.com/theodhorex/inventaris
+DELIMITER $$
+
+CREATE PROCEDURE getBookAvailability(
+    IN p_id_buku INT,
+    OUT p_status VARCHAR(20)
+)
+BEGIN
+    DECLARE v_stok INT;
+
+    SELECT stok INTO v_stok
+    FROM buku
+    WHERE id_buku = p_id_buku;
+
+    IF v_stok = 0 THEN
+        SET p_status = 'Out of Stock';
+    ELSEIF v_stok BETWEEN 1 AND 5 THEN
+        SET p_status = 'Low Stock';
+    ELSE
+        SET p_status = 'Available';
+    END IF;
+END $$
+
+DELIMITER ;
