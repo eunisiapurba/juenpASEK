@@ -1,16 +1,12 @@
 DELIMITER $$
-
-CREATE PROCEDURE calculateTotalLoanedBooksValue(
-    OUT totalValue INT
-)
+CREATE FUNCTION getProductPrice(pCode INT)
+RETURNS DECIMAL(10, 2)
+DETERMINISTIC
 BEGIN
-    SELECT 
-        SUM(b.tarif_denda_harian * d.jumlah)
-    INTO totalValue
-    FROM detail_pinjaman d
-    INNER JOIN buku b ON d.id_buku = b.id_buku
-    INNER JOIN peminjaman p ON d.id_peminjaman = p.id_peminjaman
-    WHERE p.tanggal_kembali IS NULL;
+    DECLARE product_price DECIMAL(10, 2);
+    SELECT price INTO product_price
+    FROM end_pt_products
+    WHERE productCode = pCode;
+    RETURN product_price;
 END $$
-
 DELIMITER ;
