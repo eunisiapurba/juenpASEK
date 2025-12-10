@@ -10,3 +10,17 @@ BEGIN
     RETURN product_price;
 END $$
 DELIMITER ;
+
+no 2
+DELIMITER $$
+CREATE FUNCTION supplierCountByCountry(countryName VARCHAR(50))
+RETURNS INT
+DETERMINISTIC
+BEGIN
+    DECLARE supplier_count INT;
+    SELECT COUNT(supplierID) INTO supplier_count
+    FROM end_pt_suppliers
+    WHERE country = countryName;
+    RETURN supplier_count;
+END $$
+DELIMITER ;
