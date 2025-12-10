@@ -24,3 +24,49 @@ BEGIN
     RETURN supplier_count;
 END $$
 DELIMITER ;
+
+
+no 3
+
+DELIMITER $$
+CREATE PROCEDURE listProductsBySupplier(
+    IN sID INT,
+    INOUT productList TEXT
+)
+BEGIN
+    DECLARE done INT DEFAULT FALSE;
+    DECLARE pName VARCHAR(100);
+    DECLARE pStock INT;
+
+    -- Mendefinisikan cursor
+    DECLARE product_cursor CURSOR FOR
+        SELECT p.productName, ps.stock
+        FROM end_pt_products p
+        JOIN end_pt_product_supplies ps ON p.productCode = ps.productCode
+        WHERE ps.supplierID = sID;
+
+    -- Mendefinisikan handler untuk not found (akhir dari cursor)
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+
+    -- Mengosongkan productList sebelum memulai
+    SET productList = '';
+
+    OPEN product_cursor;
+
+    -- Loop untuk mengambil data dari cursor
+    read_loop: LOOP
+        FETCH product_cursor INTO pName, pStock;
+        IF done THEN
+            LEAVE read_loop;
+        END IF;
+
+        -- Menggabungkan nama produk dan stok ke dalam productList
+        SET productList = CONCAT(productList, pName, ' - ', pStock, '; ');
+    END LOOP read_loop;
+
+    CLOSE product_cursor;
+END $$
+DELIMITER ;
+
+
+
