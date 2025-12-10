@@ -1,40 +1,71 @@
-DELIMITER $$
+[10/12 14.59] Lucass: DELIMITER $$
+
 CREATE FUNCTION getProductPrice(pCode INT)
-RETURNS DECIMAL(10, 2)
+RETURNS DECIMAL(10,2)
 DETERMINISTIC
 BEGIN
-    DECLARE product_price DECIMAL(10, 2);
-    SELECT price INTO product_price
-    FROM end_pt_products
-    WHERE productCode = pCode;
-    RETURN product_price;
-END $$
-DELIMITER ;
+    DECLARE hasil DECIMAL(10,2);
 
-no 2
-DELIMITER $$
-CREATE FUNCTION supplierCountByCountry(countryName VARCHAR(50))
+    SELECT price INTO hasil
+    FROM Products
+    WHERE productCode = pCode;
+
+    RETURN hasil;
+END$$
+
+DELIMITER ;
+[10/12 14.59] Lucass: DELIMITER $$
+
+CREATE FUNCTION supplierCountByCountry(pCountry VARCHAR(50))
 RETURNS INT
 DETERMINISTIC
 BEGIN
-    DECLARE supplier_count INT;
-    SELECT COUNT(supplierID) INTO supplier_count
-    FROM end_pt_suppliers
-    WHERE country = countryName;
-    RETURN supplier_count;
-END $$
+    DECLARE total INT;
+
+    SELECT COUNT(*)
+    INTO total
+    FROM Suppliers
+    WHERE country = pCountry;
+
+    RETURN total;
+END$$
+
 DELIMITER ;
+[10/12 14.59] Lucass: DELIMITER $$
 
-
-no 3
-
-DELIMITER $$
 CREATE PROCEDURE listProductsBySupplier(
-    IN sID INT,
+    IN pSupplierID INT,
     INOUT productList TEXT
 )
 BEGIN
-    DECLARE done INT DEFAULT FALSE;
+    DECLARE done INT DEFAULT 0;
+    DECLARE pName VARCHAR(100);
+    DECLARE pStock INT;
+
+    DECLARE cur CURSOR FOR
+        SELECT P.productName, P.stock
+        FROM Products P
+        JOIN ProductSupplies PS ON P.productCode = PS.productCode
+        WHERE PS.supplierID = pSupplierID;
+
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+
+    OPEN cur;
+
+    read_loop: LOOP
+        FETCH cur INTO pName, pStock;
+        IF done = 1 THEN
+            LEAVE read_loop;
+        END IF;
+
+        SET productList = CONCAT(productList,
+                                 pName, ' - ', pStock, '; ');
+    END LOOP;
+
+    CLOSE cur;
+END$$
+
+DELIMITER ;    DECLARE done INT DEFAULT FALSE;
     DECLARE pName VARCHAR(100);
     DECLARE pStock INT;
 
